@@ -31,9 +31,6 @@ public class BaseTest {
             ScreenShotHandler.attachScreenshot(driver, result.getName());
         }
 
-        driver.quit();
-
-
         if (driver != null) {
             driver.quit();
             System.out.println("Browser closed successfully");
