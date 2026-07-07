@@ -26,11 +26,13 @@ public class BaseTest {
     @AfterMethod
     public void tearDown(ITestResult result) {
 
-        if (result.getStatus() == ITestResult.FAILURE && driver != null) {
+        if (ITestResult.FAILURE == result.getStatus()) {
             ScreenShotHandler.takeScreenshot(driver, result.getName());
             ScreenShotHandler.attachScreenshot(driver, result.getName());
-            System.out.println("Screenshot captured for failed test");
         }
+
+        driver.quit();
+
 
         if (driver != null) {
             driver.quit();

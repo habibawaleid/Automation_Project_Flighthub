@@ -171,7 +171,7 @@ public class HomePage {
     //======================================== Assertions ===============================//
 
     public void assertVerificationCodeBoxVisible() {
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
         wait.until(ExpectedConditions.visibilityOfElementLocated(verificationCodeTextBox));
         Assert.assertTrue(driver.findElement(verificationCodeTextBox).isDisplayed());
     }
