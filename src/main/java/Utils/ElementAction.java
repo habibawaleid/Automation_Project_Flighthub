@@ -24,4 +24,16 @@ public class ElementAction {
         wait.until(ExpectedConditions.visibilityOfElementLocated((elementLocator)));
         driver.findElement(elementLocator).sendKeys(value);
     }
+
+    public static void fill(WebDriver driver, By elementLocator, String value, boolean clearBeforeTyping)
+    {
+        wait = new WebDriverWait(driver, Duration.ofSeconds(5));
+        wait.until(ExpectedConditions.visibilityOfElementLocated(elementLocator));
+
+        if (clearBeforeTyping) {
+            driver.findElement(elementLocator).clear();
+        }
+
+        driver.findElement(elementLocator).sendKeys(value);
+    }
 }

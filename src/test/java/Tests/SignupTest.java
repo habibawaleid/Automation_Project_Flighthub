@@ -2,10 +2,10 @@ package Tests;
 
 import Pages.HomePage;
 import com.github.javafaker.Faker;
-import io.qameta.allure.Description;
-import io.qameta.allure.Epic;
-import io.qameta.allure.Feature;
+import io.qameta.allure.*;
+import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.Test;
 
 @Epic("User Registration")
@@ -21,303 +21,254 @@ public class SignupTest extends BaseTest {
         faker = new Faker();
     }
 
-    // ==================== HELPER METHODS ======================
-
-
-    private void performCompleteSignup(String email, String firstName, String lastName, String password) {
-
-        homePage.openSignupFlow();
-        homePage.completeSignupFlow(email, firstName, lastName, password, password);
-        homePage.assertVerificationCodeBoxVisible();
+    @AfterMethod
+    public void tearDown() {
+        try {
+            Thread.sleep(1500);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
 
-    private void performSignupWithoutVerification(String email, String firstName, String lastName,
-                                                  String password, String confirmPassword) {
+    @Test(priority = 1, description = "REG_AUTO_001: Successful Registration")
+    @Severity(SeverityLevel.BLOCKER)
+    @Story("Happy Path: User registers successfully with dynamic data and reaches OTP screen")
+    public void testSuccessfulRegistration_REG_AUTO_001() {
+        String randomEmail = faker.internet().safeEmailAddress();
+        String password = "Pass" + faker.internet().password(6, 10, true, true);
 
-        homePage.openSignupFlow();
-        homePage.completeSignupFlow(email, firstName, lastName, password, confirmPassword);
+        homePage.clickSignInSignUp();
+        homePage.selectEmailOption();
+        homePage.enterEmailAndContinue(randomEmail);
+        homePage.fillRegistrationForm(faker.name().firstName(), faker.name().lastName(), password, password);
+        homePage.reEnterPasswordAndSubmit(password);
+
+        Assert.assertTrue(homePage.isVerificationCodeDisplayed(), "Verification code input screen was not displayed!");
     }
 
-    private void performEmailOnly(String email) {
+    @Test(priority = 2, description = "REG_AUTO_002: Empty Email Validation")
+    @Severity(SeverityLevel.CRITICAL)
+    @Story("Leaving the email field empty triggers validation message")
+    public void testEmptyEmail_REG_AUTO_002() {
+        homePage.clickSignInSignUp();
+        homePage.selectEmailOption();
+        homePage.enterEmailAndContinue("");
 
-        homePage.openSignupFlow();
-        homePage.fillEmail(email);
+        Assert.assertEquals(homePage.getEmailErrorMessage(), "Please provide your email address");
     }
 
-    // ====================== POSITIVE TEST CASES ========================
+    @Test(priority = 3, description = "REG_AUTO_003: Invalid Email format Validation")
+    @Severity(SeverityLevel.NORMAL)
+    @Story("Entering an invalid formatted email displays error message")
+    public void testInvalidEmail_REG_AUTO_003() {
+        homePage.clickSignInSignUp();
+        homePage.selectEmailOption();
+        homePage.enterEmailAndContinue("invalidEmailFormat"); // إيميل غير صالح
 
-    @Test(priority = 1)
-    @Description("TC001 - Validate that user can register successfully with valid credentials")
-    public void validateUserCanRegisterSuccessfullyWithValidCredentials() {
-        performCompleteSignup(faker.internet().emailAddress(), "John", "Doe", "Password@123");
+        Assert.assertFalse(homePage.isFirstNameFieldDisplayed(),
+                "System allowed the registration form to display (First Name field appeared) even with an invalid email format!");
     }
 
-    @Test(priority = 2)
-    @Description("TC002 - Validate user can register with different valid email formats")
-    public void validateRegistrationWithDifferentValidEmailFormats() {
-        performCompleteSignup(faker.internet().emailAddress(), "Jane", "Smith", "SecurePass@123");
+    @Test(priority = 4, description = "REG_AUTO_004: All Fields Empty Validation")
+    @Severity(SeverityLevel.NORMAL)
+    @Story("Submitting an empty registration form displays missing fields error")
+    public void testAllFieldsEmpty_REG_AUTO_004() {
+        homePage.clickSignInSignUp();
+        homePage.selectEmailOption();
+        homePage.enterEmailAndContinue(faker.internet().safeEmailAddress());
+        homePage.fillRegistrationForm("", "", "", "");
+
+        Assert.assertEquals(homePage.getMissingFieldError(), "Please fill in all the fields");
     }
 
-    @Test(priority = 3)
-    @Description("TC003 - Validate user registration with special characters in names")
-    public void validateRegistrationWithSpecialCharactersInName() {
-        performCompleteSignup(faker.internet().emailAddress(), "Jean-Paul", "O'Connor", "SpecialChar@123");
+
+    @Test(priority = 5, description = "REG_AUTO_005: Empty First Name Field Validation")
+    @Severity(SeverityLevel.NORMAL)
+    @Story("Leaving First Name blank while others are filled triggers fields validation error")
+    public void testEmptyFirstName_REG_AUTO_005() {
+        homePage.clickSignInSignUp();
+        homePage.selectEmailOption();
+        homePage.enterEmailAndContinue(faker.internet().safeEmailAddress());
+        String validPass = "ValidPass123!";
+        homePage.fillRegistrationForm("", faker.name().lastName(), validPass, validPass);
+        Assert.assertEquals(homePage.getMissingFieldError(), "Please fill in all the fields");
     }
 
-    @Test(priority = 4)
-    @Description("TC004 - Validate user can register with complex passwords")
-    public void validateRegistrationWithComplexPasswords() {
-        performCompleteSignup(faker.internet().emailAddress(), "Alex", "Brown", "P@ssw0rd!#$%&123");
+    @Test(priority = 6, description = "REG_AUTO_006: Empty Last Name Field Validation")
+    @Severity(SeverityLevel.NORMAL)
+    @Story("Leaving Last Name blank triggers fields validation error")
+    public void testEmptyLastName_REG_AUTO_006() {
+        homePage.clickSignInSignUp();
+        homePage.selectEmailOption();
+        homePage.enterEmailAndContinue(faker.internet().safeEmailAddress());
+        String validPass = "ValidPass123!";
+        homePage.fillRegistrationForm(faker.name().firstName(), "", validPass, validPass);
+
+        Assert.assertEquals(homePage.getMissingFieldError(), "Please fill in all the fields");
     }
 
-    @Test(priority = 5)
-    @Description("TC005 - Validate user can register with numbers in name")
-    public void validateRegistrationWithNumbersInName() {
-        performCompleteSignup(faker.internet().emailAddress(), "John2", "Doe3", "Numbers@123");
+    @Test(priority = 7, description = "REG_AUTO_007: Empty Password Field Validation")
+    @Severity(SeverityLevel.NORMAL)
+    @Story("Leaving password blank triggers validation error")
+    public void testEmptyPassword_REG_AUTO_007() {
+        homePage.clickSignInSignUp();
+        homePage.selectEmailOption();
+        homePage.enterEmailAndContinue(faker.internet().safeEmailAddress());
+        homePage.fillRegistrationForm(faker.name().firstName(), faker.name().lastName(), "", "SomePass123!");
+        Assert.assertEquals(homePage.getMissingFieldError(), "Please fill in all the fields");
     }
 
-    @Test(priority = 6)
-    @Description("TC006 - Validate email and continue button functionality")
-    public void validateEmailAndContinueButtonFunctionality() {
-
-        homePage.openSignupFlow();
-        homePage.fillEmail(faker.internet().emailAddress());
-        homePage.clickContinueAfterEmail();
+    @Test(priority = 8, description = "REG_AUTO_008: Empty Confirm Password Field Validation")
+    @Severity(SeverityLevel.NORMAL)
+    @Story("Leaving confirmation password blank triggers validation error")
+    public void testEmptyConfirmPassword_REG_AUTO_008() {
+        homePage.clickSignInSignUp();
+        homePage.selectEmailOption();
+        homePage.enterEmailAndContinue(faker.internet().safeEmailAddress());
+        homePage.fillRegistrationForm(faker.name().firstName(), faker.name().lastName(), "SomePass123!", "");
+        Assert.assertEquals(homePage.getMissingFieldError(), "Please fill in all the fields");
     }
 
-    @Test(priority = 7)
-    @Description("TC007 - Validate all registration fields can be filled")
-    public void validateAllRegistrationFieldsCanBeFilled() {
-        performCompleteSignup(faker.internet().emailAddress(), "Michael", "Johnson", "SecurePass@2024");
+
+    @Test(priority = 9, description = "REG_AUTO_009: Password Under 8 Characters")
+    @Severity(SeverityLevel.CRITICAL)
+    @Story("Entering a password less than 8 characters results in length error message")
+    public void testPasswordTooShort_REG_AUTO_009() {
+        homePage.clickSignInSignUp();
+        homePage.selectEmailOption();
+        homePage.enterEmailAndContinue(faker.internet().safeEmailAddress());
+        homePage.fillRegistrationForm(faker.name().firstName(), faker.name().lastName(), "Short1!", "Short1!");
+        Assert.assertEquals(homePage.getPasswordError(), "Your password must be at least 8 characters long");
     }
 
-    @Test(priority = 8)
-    @Description("TC008 - Validate sign in button opens email selection modal")
-    public void validateSignInButtonOpensModal() {
-
-        homePage.clickSignInButton();
-        homePage.clickChooseEmail();
+    @Test(priority = 10, description = "REG_AUTO_010: Password Mismatch Validation")
+    @Severity(SeverityLevel.CRITICAL)
+    @Story("Providing different values in Password and Confirm Password displays mismatch error")
+    public void testPasswordMismatch_REG_AUTO_010() {
+        homePage.clickSignInSignUp();
+        homePage.selectEmailOption();
+        homePage.enterEmailAndContinue(faker.internet().safeEmailAddress());
+        homePage.fillRegistrationForm(faker.name().firstName(), faker.name().lastName(), "StrongPass1!", "DifferentPass2!");
+        Assert.assertEquals(homePage.getPasswordMismatchError(), "Your passwords do not match");
     }
 
-    @Test(priority = 9)
-    @Description("TC009 - Validate verification code box is displayed after sign up")
-    public void validateVerificationCodeBoxDisplay() {
-        performCompleteSignup(faker.internet().emailAddress(), "Test", "User", "TestPass@123");
+    @Test(priority = 11, description = "REG_AUTO_011: Attempt Registration with an Existing Registered Email")
+    @Severity(SeverityLevel.CRITICAL)
+    @Story("Using an already registered email should prevent signup progress and show error or redirect")
+    public void testExistingEmailRegistration_REG_AUTO_011() {
+        String existingEmail = "existing_tester_123@gmail.com";
+        homePage.clickSignInSignUp();
+        homePage.selectEmailOption();
+        homePage.enterEmailAndContinue(existingEmail);
+        Assert.assertTrue(homePage.isLoginPasswordFieldDisplayed(), "System did not redirect to the login password screen for an already registered email!");
     }
 
-    @Test(priority = 10)
-    @Description("TC010 - Validate user can register with lowercase email")
-    public void validateRegistrationWithLowercaseEmail() {
-        performCompleteSignup(faker.internet().emailAddress(), "Tom", "Hardy", "Lowercase@123");
+    @Test(priority = 12, description = "REG_AUTO_012: Password with Exactly 8 Characters")
+    @Severity(SeverityLevel.NORMAL)
+    @Story("Boundary Analysis: Verification of password length exactly equal to 8 characters")
+    public void testPasswordExactlyEightChars_REG_AUTO_012() {
+        String exactEightPassword = "Exact8p!"; // 8 chars
+        homePage.clickSignInSignUp();
+        homePage.selectEmailOption();
+        homePage.enterEmailAndContinue(faker.internet().safeEmailAddress());
+        homePage.fillRegistrationForm(faker.name().firstName(), faker.name().lastName(), exactEightPassword, exactEightPassword);
+        homePage.reEnterPasswordAndSubmit(exactEightPassword);
+        Assert.assertTrue(homePage.isVerificationCodeDisplayed(), "Failed to proceed with exactly 8 character password!");
     }
 
-    @Test(priority = 11)
-    @Description("TC011 - Validate user can register with uppercase password")
-    public void validateRegistrationWithUppercasePassword() {
-        performCompleteSignup(faker.internet().emailAddress(), "Upper", "Case", "UPPERCASE@123");
+
+    @Test(priority = 13, description = "REG_AUTO_013: Password with More Than 8 Characters")
+    @Severity(SeverityLevel.NORMAL)
+    @Story("Boundary Analysis: Verification of password length greater than 8 characters")
+    public void testPasswordMoreThanEightChars_REG_AUTO_013() {
+        String longPassword = "SuperStrongPassword123#"; // >8 chars
+        homePage.clickSignInSignUp();
+        homePage.selectEmailOption();
+        homePage.enterEmailAndContinue(faker.internet().safeEmailAddress());
+        homePage.fillRegistrationForm(faker.name().firstName(), faker.name().lastName(), longPassword, longPassword);
+        homePage.reEnterPasswordAndSubmit(longPassword);
+        Assert.assertTrue(homePage.isVerificationCodeDisplayed(), "Failed to proceed with more than 8 character password!");
     }
 
-    @Test(priority = 12)
-    @Description("TC012 - Validate registration with hyphenated email")
-    public void validateRegistrationWithHyphenatedEmail() {
-        performCompleteSignup(faker.internet().emailAddress(), "Hyphen", "Email", "Hyphen@123");
+    @Test(priority = 14, description = "REG_AUTO_014: Continue After Valid Email Displays Registration Form")
+    @Severity(SeverityLevel.CRITICAL)
+    @Story("Entering a valid email transitions the user to the basic registration details form")
+    public void testContinueAfterValidEmail_REG_AUTO_014() {
+        homePage.clickSignInSignUp();
+        homePage.selectEmailOption();
+        homePage.enterEmailAndContinue(faker.internet().safeEmailAddress());
+        Assert.assertTrue(homePage.isRegistrationFormDisplayed(), "Registration form was not displayed after submitting email!");
     }
 
-    @Test(priority = 13)
-    @Description("TC013 - Validate registration with minimum length names")
-    public void validateRegistrationWithSingleCharacterNames() {
-        performCompleteSignup(faker.internet().emailAddress(), "A", "B", "Single@123");
+    @Test(priority = 15, description = "REG_AUTO_015: Verification Code Displayed")
+    @Severity(SeverityLevel.NORMAL)
+    @Story("Ensure the verification code field is visible upon successful detail entry")
+    public void testVerificationCodeDisplayed_REG_AUTO_015() {
+        String randomEmail = faker.internet().safeEmailAddress();
+        String password = "Pass" + faker.internet().password(6, 10, true, true);
+        homePage.clickSignInSignUp();
+        homePage.selectEmailOption();
+        homePage.enterEmailAndContinue(randomEmail);
+        homePage.fillRegistrationForm(faker.name().firstName(), faker.name().lastName(), password, password);
+        homePage.reEnterPasswordAndSubmit(password);
+        Assert.assertTrue(homePage.isVerificationCodeDisplayed(), "Verification code input field is not displayed!");
     }
 
-    @Test(priority = 14)
-    @Description("TC014 - Validate registration with maximum length names")
-    public void validateRegistrationWithMaxLengthNames() {
-        performCompleteSignup(faker.internet().emailAddress(), "VeryVeryVeryLongFirstNameForTesting",
-                "VeryVeryVeryLongLastNameForTesting", "MaxLength@123");
+    @Test(priority = 16, description = "REG_AUTO_016: Verification Code Enabled")
+    @Severity(SeverityLevel.NORMAL)
+    @Story("Ensure the verification code field is enabled for user input")
+    public void testVerificationCodeEnabled_REG_AUTO_016() {
+        String randomEmail = faker.internet().safeEmailAddress();
+        String password = "Pass" + faker.internet().password(6, 10, true, true);
+        homePage.clickSignInSignUp();
+        homePage.selectEmailOption();
+        homePage.enterEmailAndContinue(randomEmail);
+        homePage.fillRegistrationForm(faker.name().firstName(), faker.name().lastName(), password, password);
+        homePage.reEnterPasswordAndSubmit(password);
+
+        Assert.assertTrue(homePage.isVerificationCodeEnabled(), "Verification code input field is disabled!");
     }
 
-    @Test(priority = 15)
-    @Description("TC015 - Validate registration with very long password")
-    public void validateRegistrationWithVeryLongPassword() {
-        String longPassword = "VeryLongPassword@123456789VeryLongPassword@123456789";
-        performCompleteSignup(faker.internet().emailAddress(), "Long", "Password", longPassword);
+
+    @Test(priority = 17, description = "REG_AUTO_017: Invalid Data Cannot Reach Verification Screen")
+    @Severity(SeverityLevel.CRITICAL)
+    @Story("Negative security check: User cannot bypass errors to reach the OTP verification step")
+    public void testInvalidDataCannotReachVerification_REG_AUTO_017() {
+        homePage.clickSignInSignUp();
+        homePage.selectEmailOption();
+        homePage.enterEmailAndContinue(faker.internet().safeEmailAddress());
+        homePage.fillRegistrationForm("", "", "123", "321");
+        Assert.assertFalse(homePage.isVerificationCodeDisplayed(), "System bypassed validation and displayed OTP screen!");
     }
 
-    @Test(priority = 16)
-    @Description("TC016 - Validate registration with mixed case names")
-    public void validateRegistrationWithMixedCaseNames() {
-        performCompleteSignup(faker.internet().emailAddress(), "JoHn", "DoE", "MixedCase@123");
+    @Test(priority = 18, description = "REG_AUTO_018: Password Field Character Masking")
+    @Severity(SeverityLevel.NORMAL)
+    @Story("Ensuring the password input field masks input characters as 'password' type")
+    public void testPasswordMasking_REG_AUTO_018() {
+        homePage.clickSignInSignUp();
+        homePage.selectEmailOption();
+        homePage.enterEmailAndContinue(faker.internet().safeEmailAddress());
+        Assert.assertEquals(homePage.getPasswordFieldType(), "password", "Password input characters are visible on screen!");
     }
 
-    @Test(priority = 17)
-    @Description("TC017 - Validate verification code box is displayed after signup")
-    public void validateVerificationCodeBoxDisplayAfterSignup() {
-        performCompleteSignup(faker.internet().emailAddress(), "Verify", "Code", "Verify@123");
+    @Test(priority = 19, description = "REG_AUTO_019: Confirm Password Field Character Masking")
+    @Severity(SeverityLevel.NORMAL)
+    @Story("Ensuring the confirm password input field masks input characters as 'password' type")
+    public void testConfirmPasswordMasking_REG_AUTO_019() {
+        homePage.clickSignInSignUp();
+        homePage.selectEmailOption();
+        homePage.enterEmailAndContinue(faker.internet().safeEmailAddress());
+        Assert.assertEquals(homePage.getConfirmPasswordFieldType(), "password", "Confirm Password input characters are visible on screen!");
     }
 
-    @Test(priority = 18)
-    @Description("TC018 - Validate registration flow with email containing dots")
-    public void validateRegistrationWithEmailContainingDots() {
-        performCompleteSignup(faker.internet().emailAddress(), "Dots", "Email", "Dots@123");
+    @Test(priority = 20, description = "REG_AUTO_020: Generic Error Message Validation")
+    @Severity(SeverityLevel.NORMAL)
+    @Story("Verify that general error elements are displayed when general system or input errors occur")
+    public void testGenericErrorMessage_REG_AUTO_020() {
+        homePage.clickSignInSignUp();
+        homePage.selectEmailOption();
+        homePage.enterEmailAndContinue("");
+        Assert.assertEquals(homePage.getEmailErrorMessage(), "Please provide your email address", "Generic error message element was not displayed!");
     }
 
-    @Test(priority = 19)
-    @Description("TC019 - Validate registration flow with email containing underscore")
-    public void validateRegistrationWithEmailContainingUnderscore() {
-        performCompleteSignup(faker.internet().emailAddress(), "Under", "Score", "Under@123");
     }
-
-    @Test(priority = 20)
-    @Description("TC020 - Validate registration with password containing multiple special characters")
-    public void validateRegistrationWithMultipleSpecialCharactersInPassword() {
-        performCompleteSignup(faker.internet().emailAddress(), "Multi", "Special", "P@$$w0rd!#%");
-    }
-
-    // ====================== NEGATIVE TEST CASES ========================
-
-    @Test(priority = 21)
-    @Description("TC021 - Validate that user cannot sign up with mismatched passwords")
-    public void validateUserCannotSignupWithMismatchedPasswords() {
-        performSignupWithoutVerification(faker.internet().emailAddress(), "Jane", "Smith",
-                "Password@123", "Password@456");
-    }
-
-    @Test(priority = 22)
-    @Description("TC022 - Validate that empty first name field prevents signup")
-    public void validateEmptyFirstNamePreventsSignup() {
-        performSignupWithoutVerification(faker.internet().emailAddress(), "", "Smith",
-                "Pass@123", "Pass@123");
-    }
-
-    @Test(priority = 23)
-    @Description("TC023 - Validate that empty last name field prevents signup")
-    public void validateEmptyLastNamePreventsSignup() {
-        performSignupWithoutVerification(faker.internet().emailAddress(), "Jane", "",
-                "Pass@123", "Pass@123");
-    }
-
-    @Test(priority = 24)
-    @Description("TC024 - Validate that empty email field prevents signup")
-    public void validateEmptyEmailPreventsSignup() {
-
-        homePage.openSignupFlow();
-        homePage.fillEmail("");
-    }
-
-    @Test(priority = 25)
-    @Description("TC025 - Validate that empty password field prevents signup")
-    public void validateEmptyPasswordPreventsSignup() {
-        performSignupWithoutVerification(faker.internet().emailAddress(), "Test", "User", "", "");
-    }
-
-    @Test(priority = 26)
-    @Description("TC026 - Validate that invalid email format is rejected")
-    public void validateInvalidEmailFormatRejected() {
-        performEmailOnly("invalidemail");
-    }
-
-    @Test(priority = 27)
-    @Description("TC027 - Validate that email with missing domain extension is rejected")
-    public void validateEmailWithoutDomainExtensionRejected() {
-        performEmailOnly("user@domain");
-    }
-
-    @Test(priority = 28)
-    @Description("TC028 - Validate password confirm field shows error with mismatched password")
-    public void validatePasswordConfirmFieldErrorOnMismatch() {
-        performSignupWithoutVerification(faker.internet().emailAddress(), "Alex", "Brown",
-                "Correct@123", "Wrong@456");
-    }
-
-    @Test(priority = 29)
-    @Description("TC029 - Validate that short password is rejected")
-    public void validateShortPasswordRejected() {
-        performSignupWithoutVerification(faker.internet().emailAddress(), "Bob", "Dylan", "Pass", "Pass");
-    }
-
-    @Test(priority = 30)
-    @Description("TC030 - Validate that password without special characters is rejected")
-    public void validatePasswordWithoutSpecialCharactersRejected() {
-        performSignupWithoutVerification(faker.internet().emailAddress(), "Tom", "Jerry",
-                "Password123", "Password123");
-    }
-
-    // ====================== EDGE CASES ========================
-
-    @Test(priority = 31)
-    @Description("TC031 - Validate registration with maximum length names")
-    public void validateRegistrationWithMaximumLengthNames() {
-        performCompleteSignup(faker.internet().emailAddress(), "VeryVeryVeryLongFirstNameForTesting",
-                "VeryVeryVeryLongLastNameForTesting", "MaxLength@123");
-    }
-
-    @Test(priority = 32)
-    @Description("TC032 - Validate registration with single character names")
-    public void validateRegistrationWithSingleCharacterNameValues() {
-        homePage.completeSignupFlow(faker.internet().emailAddress(), "A", "B", "Single@123", "Single@123");
-    }
-
-    @Test(priority = 33)
-    @Description("TC033 - Validate email field with leading/trailing spaces")
-    public void validateEmailWithLeadingTrailingSpaces() {
-
-        homePage.openSignupFlow();
-        homePage.fillEmail("  " + faker.internet().emailAddress() + "  ");
-        homePage.clickContinueAfterEmail();
-    }
-
-    @Test(priority = 34)
-    @Description("TC034 - Validate registration with very long password")
-    public void validateRegistrationWithVeryLongPasswordValue() {
-        String longPassword = "VeryLongPassword@123456789VeryLongPassword@123456789";
-        performCompleteSignup(faker.internet().emailAddress(), "Long", "Password", longPassword);
-    }
-
-    @Test(priority = 35)
-    @Description("TC035 - Validate email field rejects multiple @ symbols")
-    public void validateEmailRejectsMultipleAtSymbols() {
-        performEmailOnly("user@@example.com");
-    }
-
-    @Test(priority = 36)
-    @Description("TC036 - Validate password field accepts numbers and uppercase")
-    public void validatePasswordAcceptsNumbersAndUppercase() {
-        performCompleteSignup(faker.internet().emailAddress(), "Upper", "Number", "PASSWORD123@");
-    }
-
-    @Test(priority = 37)
-    @Description("TC037 - Validate that empty confirm password field shows error")
-    public void validateEmptyConfirmPasswordShowsError() {
-        performSignupWithoutVerification(faker.internet().emailAddress(), "No", "Confirm",
-                "Password@123", "");
-    }
-
-    @Test(priority = 38)
-    @Description("TC038 - Validate registration flow with hyphenated email")
-    public void validateRegistrationWithHyphenatedEmailValue() {
-        performCompleteSignup(faker.internet().emailAddress(), "Hyphen", "Email", "Hyphen@123");
-    }
-
-    @Test(priority = 39)
-    @Description("TC039 - Validate that clicking continue without email shows error")
-    public void validateClickingContinueWithoutEmailShowsError() {
-
-        homePage.openSignupFlow();
-        homePage.fillEmail("");
-    }
-
-    @Test(priority = 40)
-    @Description("TC040 - Validate successful signup flow with all parameters filled correctly")
-    public void validateCompleteSuccessfulSignupFlow() {
-
-        homePage.openSignupFlow();
-
-        String email = faker.internet().emailAddress();
-        String firstName = "Complete";
-        String lastName = "Registration";
-        String password = "Complete@123";
-
-        homePage.completeSignupFlow(email, firstName, lastName, password, password);
-        homePage.assertVerificationCodeBoxVisible();
-    }
-}
