@@ -14,7 +14,7 @@ public class BaseTest {
     @BeforeMethod
     public void precondition(
             @Optional("firefox") String browserName,
-            @Optional("true") String headless) {
+            @Optional("false") String headless) {
 
         driver = DriverFactory.setDriver(
                 browserName,
