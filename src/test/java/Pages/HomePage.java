@@ -87,19 +87,38 @@ public class HomePage {
     private final By flightHubLogo = By.id("top-logo");
 
     // ===== Flights and Hotels Search Form - Round Trip =====
-    private final By flightsAndHotelsBtn = By.xpath("//div[@class='product-type-selector-item product-type-selector-item__travel-packages active']");
-    private final By roundTripBtn = By.xpath("//div[@class='trip-type-roundtrip active']");
-    private final By roundTripLeavingFromInput = By.xpath("//div[@class='home-search-form-input search-form-input departure ']");
-    private final By roundTripGoingToInput = By.xpath("//div[@class='home-search-form-input destination ']");
+    private final By flightsAndHotelsBtn = By.xpath("//div[contains(@class, 'product-type-selector-item__travel-packages')]");
+    private final By roundTripBtn = By.xpath("//div[contains(@class, 'travel-packages')]//div[contains(@class, 'trip-type-roundtrip')]");
+    private final By roundTripLeavingFromInput = By.xpath("//div[contains(@class, 'travel-packages')]//div[contains(@class, 'departure')]//input");    private final By roundTripGoingToInput = By.xpath("//div[contains(@class, 'travel-packages')]//div[contains(@class, 'destination')]//input");
     private final By roundTripDateInput = By.xpath("//div[@id='seg0_date']");
     private final By roundTripSearchBtn = By.xpath("//div[@class='home-search-form-submit search-form-submit flights fh']");
-
-    // ===== Flights and Hotels Search Form - One Way =====
-    private final By oneWayBtn = By.xpath("//div[@class='trip-type-oneway']");
-    private final By oneWayLeavingFromInput = By.xpath("//div[@class='home-search-form-input search-form-input departure ']");
+    private final By firstAutoCompleteOption = By.xpath("(//div[contains(@class, 'airport-autocomplete-list-item')])[1]");
+    private final By oneWayBtn = By.xpath("//div[contains(@class, 'travel-packages')]//div[contains(@class, 'trip-type-oneway')]");
+    private final By oneWayLeavingFromInput = By.xpath("//div[contains(@class, 'departure')]//input");
     private final By oneWayGoingToInput = By.xpath("//div[@class='home-search-form-input destination ']");
     private final By oneWayDateInput = By.xpath("//div[@id='seg0_date']");
     private final By oneWaySearchBtn = By.xpath("//div[contains(@class,'home-search-form-submit search-form-submit flights fh')]");
+    private final By cabinClassDropdown = By.xpath("//div[contains(@class, 'travel-packages')]//div[contains(text(), 'Economy') or contains(text(), 'Business') or contains(text(), 'First')]");    private final By premiumEconomyOption = By.xpath("//div[contains(text(),'Premium Economy')]");
+    private final By travellersInput = By.xpath("//div[contains(@class,'passenger-room-input-wrapper')]");
+    private final By addAdultBtn = By.xpath("//div[contains(@class, 'passenger-type-adult')]//button[contains(@class, 'plus')]");
+    private final By childAgeDropdown = By.xpath("//div[contains(@class, 'guest-age-selector-container')]//div[contains(@class, 'age-selector-content')]");
+    private final By childAge3Years = By.xpath("//div[contains(@class, 'guest-age-selector-dropdown-list')]//div[contains(normalize-space(), '3 years old')]");
+    private final By businessClassOption = By.xpath("//div[text()='Business Class']");
+    private final By firstClassOption = By.xpath("//div[text()='First Class']");
+    private final By counterWrappers = By.xpath("//div[contains(@class,'passenger-room-list')]//div[contains(@class,'passenger-room-counter-wrapper')]");
+    private final By adultPlusBtn  = By.xpath("(//div[contains(@class,'passenger-room-counter-wrapper')])[1]//div[contains(concat(' ', normalize-space(@class), ' '), ' plus ')]");
+    private final By adultMinusBtn = By.xpath("(//div[contains(@class, 'passenger-room-counter')])[1]//div[contains(@class, 'plus-minus')][1]");
+    private final By childPlusBtn  = By.xpath("(//div[contains(@class,'passenger-room-counter-wrapper')])[2]//div[contains(concat(' ', normalize-space(@class), ' '), ' plus ')]");
+    private final By infantOnSeatPlusBtn = By.xpath("(//div[contains(@class,'passenger-room-counter-wrapper')])[3]//div[contains(concat(' ', normalize-space(@class), ' '), ' plus ')]");
+    private final By infantLapPlusBtn = By.xpath("(//div[contains(@class,'passenger-room-counter-wrapper')])[4]//div[contains(concat(' ', normalize-space(@class), ' '), ' plus ')]");
+    private final By travellersSummaryText = By.xpath("//div[contains(@class, 'travel-packages')]//div[contains(@class, 'passenger-room-input-wrapper')]//input");
+    private final By applyPassengerBtn = By.xpath("//div[contains(@class, 'travel-packages')]//button[contains(@class, 'apply-button')]");
+    private final By startDate = By.xpath("(//div[contains(@class, 'date-picker')]//button[contains(@class, 'rdrDay') and not(contains(@class, 'rdrDayDisabled')) and not(contains(@class, 'rdrDayPassive'))])[1]");
+    private final By endDate = By.xpath("(//div[contains(@class, 'date-picker')]//button[contains(@class, 'rdrDay') and not(contains(@class, 'rdrDayDisabled')) and not(contains(@class, 'rdrDayPassive'))])[14]");
+    private final By clearDatesBtn = By.xpath("//div[contains(@class, 'date-picker')]//div[contains(@class, 'clear-dates-btn')]");
+    private final By setDatesBtn = By.xpath("//div[contains(@class, 'date-picker')]//button[contains(@class, 'set-dates-btn')]");
+    private final By passengerErrorMsg = By.xpath("//div[contains(@class, 'passenger-room-selector-error')]");
+    private final By segmentWrapper = By.xpath("//div[contains(@class,'segment-wrapper')]");
 
     // ===== Cars Search Form =====
     private final By carsSelector = By.xpath("//div[contains(@class,'product-type-selector-item active')]");
