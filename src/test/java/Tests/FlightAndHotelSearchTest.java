@@ -5,9 +5,12 @@ import com.github.javafaker.Faker;
 import io.qameta.allure.Description;
 import io.qameta.allure.Epic;
 import io.qameta.allure.Feature;
+import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+
+import java.time.Duration;
 
 @Epic("Flights and Hotels")
 @Feature("Search Form Functionality")
@@ -18,7 +21,7 @@ public class FlightAndHotelSearchTest extends BaseTest {
 
     @BeforeMethod
     public void setUp() {
-        homePage = new HomePage(driver);
+        homePage = new HomePage(driver,new WebDriverWait(driver, Duration.ofSeconds(10)));
         faker = new Faker();
     }
 
