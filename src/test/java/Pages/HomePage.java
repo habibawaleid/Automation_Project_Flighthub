@@ -452,4 +452,5 @@ public class HomePage {
         Assert.assertTrue(driver.findElement(verificationCodeTextBox).isDisplayed());
     }
 
+    // Syncing missing methods
 }
