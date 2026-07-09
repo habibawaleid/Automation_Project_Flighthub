@@ -23,13 +23,14 @@ public class HomePage {
 
     public HomePage(WebDriver driver) {
         this.driver = driver;
+        this.wait = new WebDriverWait(driver, Duration.ofSeconds(10));
     }
 
 
     //========================================== Locators ============================//
 
 
-    // Locators for signup and login
+    // =================================================================
     private final By signupBottomBtn = By.xpath("//div[@class='sunshine-header-nav fh']//div[contains(text(),'Sign in')]");
     private final By emailChosenOption = By.xpath("//span[normalize-space()='Email']");
     private final By emailTextBox = By.id("login-modal-account-login-email");
@@ -42,11 +43,21 @@ public class HomePage {
     private final By passwordAccountTextBox = By.id("login-modal-account-login-password");
     private final By continueBtn = By.xpath("//div[@class='item button']//button[@class='login-modal-submit-btn is-main-button login-modal-button'][normalize-space()='Continue']");
     private final By verificationCodeTextBox = By.id("login-modal-account-login-totp");
-    private final By signInBtn = By.xpath("//button[@class='login-modal-submit-btn is-main-button login-modal-button'][normalize-space()='Sign in']");
+
+    // Locators for validation and error messages
+    private final By errorMessageEmail = By.xpath("//div[@id='page-email']//div[@class='login-modal-feedback-message feedback-error'][normalize-space()='Please provide your email address']");
+    private final By errorMessageMissedField = By.xpath("//div[@id='page-register']//div[@class='login-modal-feedback-message feedback-error'][normalize-space()='Please fill in all the fields']");
+    private final By errorMessagePassword = By.xpath("//div[@id='page-register']//div[@class='login-modal-feedback-message feedback-error'][normalize-space()='Your password must be at least 8 characters long']");
+    private final By passwordErrorMatched = By.xpath("//div[@id='page-register']//div[@class='login-modal-feedback-message feedback-error'][normalize-space()='Your passwords do not match']");
+    private final By errorMessage = By.xpath("//div[@class='login-modal-feedback-message feedback-error']");
+
+    // =================================================================
+    // Action Methods (يتعامل معها كلاس الفحص لإرسال البيانات)
+    // =================================================================
 
     // Language & Currency Locators (in the order provided)
     private final By languageCurrencySelection = By.xpath("//div[@class='sunshine-header-nav fh']//span[contains(text(),'CAD')]");
-    private final By languageSelect= By.xpath("//div[@class='ReactModalPortal']//div[3]");
+    private final By languageSelect = By.xpath("//div[@class='ReactModalPortal']//div[3]");
     private final By englishSelectBtn = By.xpath("//button[@class='_option_kuh6b_143 _selected_kuh6b_167']//div[@class='_dropdownOptionContent_kuh6b_170']");
     private final By frenchSelectBtn = By.xpath("//button[@aria-selected='false']");
     private final By currencySelectBtn = By.xpath("//div[@class='_selectorInput_4e6ym_58 _disabled_4e6ym_73']");
@@ -103,79 +114,114 @@ public class HomePage {
     private final By carDropOffTimeInput = By.xpath("//body[1]/div[2]/div[2]/div[1]/section[1]/div[1]/div[2]/form[1]/div[2]/div[2]/div[3]/div[1]/div[1]/div[2]");
     private final By carSearchBtn = By.xpath("//div[contains(@class,'home-search-form-submit')]");
 
-    //========================================= Actions ===============================//
 
-    // Sign-up flow actions
-    public void clickSignInButton() {
+
+
+
+
+
+
+
+    //========================================= Actions ===============================//
+//========================================== Action Methods ============================//
+
+    public void clickSignInSignUp() {
         ElementAction.click(driver, signupBottomBtn);
     }
 
-    public void clickChooseEmail() {
+    public void selectEmailOption() {
         ElementAction.click(driver, emailChosenOption);
     }
 
-    public void fillEmail(String email) {
-        ElementAction.fill(driver, emailTextBox, email);
-    }
 
-    public void clickContinueAfterEmail() {
+    public void enterEmailAndContinue(String email) {
+        ElementAction.fill(driver, emailTextBox, email, true);
         ElementAction.click(driver, continueAfterEmail);
     }
 
-    public void fillFirstName(String firstName) {
+    public void fillRegistrationForm(String firstName, String lastName, String password, String confirmPassword) {
         ElementAction.fill(driver, firstNameTextBox, firstName);
-    }
-
-    public void fillLastName(String lastName) {
         ElementAction.fill(driver, lastNameTextBox, lastName);
-    }
-
-    public void fillPassword(String password) {
         ElementAction.fill(driver, passwordTextBox, password);
-    }
-
-    public void fillConfirmPassword(String confirmPassword) {
         ElementAction.fill(driver, confirmPasswordTextBox, confirmPassword);
-    }
-
-    public void clickSignUpButton() {
         ElementAction.click(driver, signupBtn);
     }
 
-    public void fillAccountPassword(String password) {
+    public void reEnterPasswordAndSubmit(String password) {
         ElementAction.fill(driver, passwordAccountTextBox, password);
-    }
-
-    public void clickContinueButton() {
         ElementAction.click(driver, continueBtn);
     }
 
-    // ====================== HELPER METHODS FOR SIGNUP ======================
-
-    public void openSignupFlow() {
-        clickSignInButton();
-        clickChooseEmail();
+    //================================== Verification & Getters ==========================//
+    public String getEmailErrorMessage() {
+        return wait.until(ExpectedConditions.visibilityOfElementLocated(errorMessageEmail)).getText();
     }
-    public void completeSignupFlow(String email, String firstName,
-                                   String lastName, String password,
-                                   String confirmPassword) {
 
-        fillEmail(email);
-        clickContinueAfterEmail();
-        fillFirstName(firstName);
-        fillLastName(lastName);
-        fillPassword(password);
-        fillConfirmPassword(confirmPassword);
-        clickSignUpButton();
-        fillAccountPassword(password);
-        clickContinueButton();
+    public String getMissingFieldError() {
+        return wait.until(ExpectedConditions.visibilityOfElementLocated(errorMessageMissedField)).getText();
     }
-    //======================================== Assertions ===============================//
 
-    public void assertVerificationCodeBoxVisible() {
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
-        wait.until(ExpectedConditions.visibilityOfElementLocated(verificationCodeTextBox));
-        Assert.assertTrue(driver.findElement(verificationCodeTextBox).isDisplayed());
+    public String getPasswordError() {
+        return wait.until(ExpectedConditions.visibilityOfElementLocated(errorMessagePassword)).getText();
     }
+
+    public String getPasswordMismatchError() {
+        return wait.until(ExpectedConditions.visibilityOfElementLocated(passwordErrorMatched)).getText();
+    }
+
+    public String getGeneralErrorMessage() {
+        return wait.until(ExpectedConditions.visibilityOfElementLocated(errorMessage)).getText();
+    }
+
+    public boolean isErrorMessageDisplayed() {
+        try {
+            return wait.until(ExpectedConditions.visibilityOfElementLocated(errorMessage)).isDisplayed();
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public boolean isVerificationCodeDisplayed() {
+        try {
+            WebDriverWait longWait = new WebDriverWait(driver, Duration.ofSeconds(15));
+            return longWait.until(ExpectedConditions.visibilityOfElementLocated(verificationCodeTextBox)).isDisplayed();
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public boolean isLoginPasswordFieldDisplayed() {
+        try {
+            return wait.until(ExpectedConditions.visibilityOfElementLocated(passwordAccountTextBox)).isDisplayed();
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public boolean isFirstNameFieldDisplayed() {
+        try {
+            return !driver.findElements(firstNameTextBox).isEmpty() && driver.findElement(firstNameTextBox).isDisplayed();
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public boolean isVerificationCodeEnabled() {
+        return wait.until(ExpectedConditions.visibilityOfElementLocated(verificationCodeTextBox)).isEnabled();
+    }
+
+    public boolean isRegistrationFormDisplayed() {
+        return wait.until(ExpectedConditions.visibilityOfElementLocated(firstNameTextBox)).isDisplayed();
+    }
+
+    public String getPasswordFieldType() {
+        return wait.until(ExpectedConditions.visibilityOfElementLocated(passwordTextBox)).getAttribute("type");
+    }
+
+    public String getConfirmPasswordFieldType() {
+        return wait.until(ExpectedConditions.visibilityOfElementLocated(confirmPasswordTextBox)).getAttribute("type");
+    }
+
+
 
 }
