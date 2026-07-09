@@ -5,9 +5,9 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import Utils.ElementAction;
-import org.testng.Assert;
-
 import java.time.Duration;
+
+
 
 public class HomePage {
 
@@ -16,18 +16,21 @@ public class HomePage {
     //======================================== Driver =================================//
 
     private final WebDriver driver;
+    private final WebDriverWait wait;
+//h
 
     //======================================== Constructor ===========================//
 
-    public HomePage(WebDriver driver) {
+    public HomePage(WebDriver driver, WebDriverWait wait) {
         this.driver = driver;
+        this.wait = wait;
     }
 
 
     //========================================== Locators ============================//
 
 
-    // Locators for signup and login
+    //========================================== Locators ============================//
     private final By signupBottomBtn = By.xpath("//div[@class='sunshine-header-nav fh']//div[contains(text(),'Sign in')]");
     private final By emailChosenOption = By.xpath("//span[normalize-space()='Email']");
     private final By emailTextBox = By.id("login-modal-account-login-email");
@@ -40,7 +43,13 @@ public class HomePage {
     private final By passwordAccountTextBox = By.id("login-modal-account-login-password");
     private final By continueBtn = By.xpath("//div[@class='item button']//button[@class='login-modal-submit-btn is-main-button login-modal-button'][normalize-space()='Continue']");
     private final By verificationCodeTextBox = By.id("login-modal-account-login-totp");
-    private final By signInBtn = By.xpath("//button[@class='login-modal-submit-btn is-main-button login-modal-button'][normalize-space()='Sign in']");
+
+    // Locators for Validation and Error Messages
+    private final By errorMessageEmail = By.xpath("//div[@id='page-email']//div[@class='login-modal-feedback-message feedback-error'][normalize-space()='Please provide your email address']");
+    private final By errorMessageMissedField  = By.xpath("//div[@id='page-register']//div[@class='login-modal-feedback-message feedback-error'][normalize-space()='Please fill in all the fields']");
+    private final By errorMessagePassword = By.xpath("//div[@id='page-register']//div[@class='login-modal-feedback-message feedback-error'][normalize-space()='Your password must be at least 8 characters long']");
+    private final By passwordErrorMatched = By.xpath("//div[@id='page-register']//div[@class='login-modal-feedback-message feedback-error'][normalize-space()='Your passwords do not match']");
+    private final By errorMessage = By.xpath("//div[@class='login-modal-feedback-message feedback-error']");
 
     // Language & Currency Locators (in the order provided)
     private final By languageCurrencySelection = By.xpath("//div[@class='sunshine-header-nav fh']//span[contains(text(),'CAD')]");
@@ -120,336 +129,129 @@ public class HomePage {
     private final By carDropOffTimeInput = By.xpath("//body[1]/div[2]/div[2]/div[1]/section[1]/div[1]/div[2]/form[1]/div[2]/div[2]/div[3]/div[1]/div[1]/div[2]");
     private final By carSearchBtn = By.xpath("//div[contains(@class,'home-search-form-submit')]");
 
-    //========================================= Actions ===============================//
-
-    // Sign-up flow actions
-    public void clickSignInButton() {
+    // 1. الضغط على Sign in / Sign up
+    public void clickSignInSignUp() {
         ElementAction.click(driver, signupBottomBtn);
     }
 
-    public void clickChooseEmail() {
+    // 2. اختيار الإيميل كطريقة تسجيل
+    public void selectEmailOption() {
         ElementAction.click(driver, emailChosenOption);
     }
 
-    public void fillEmail(String email) {
-        ElementAction.fill(driver, emailTextBox, email);
-    }
-
-    public void clickContinueAfterEmail() {
+    // 3. إدخال الإيميل والضغط على متابعة
+    public void enterEmailAndContinue(String email) {
+        ElementAction.fill(driver, emailTextBox, email, true);
         ElementAction.click(driver, continueAfterEmail);
     }
 
-    public void fillFirstName(String firstName) {
+    // 4. ملء نموذج التسجيل والضغط على Sign up
+    public void fillRegistrationForm(String firstName, String lastName, String password, String confirmPassword) {
         ElementAction.fill(driver, firstNameTextBox, firstName);
-    }
-
-    public void fillLastName(String lastName) {
         ElementAction.fill(driver, lastNameTextBox, lastName);
-    }
-
-    public void fillPassword(String password) {
         ElementAction.fill(driver, passwordTextBox, password);
-    }
-
-    public void fillConfirmPassword(String confirmPassword) {
         ElementAction.fill(driver, confirmPasswordTextBox, confirmPassword);
-    }
-
-    public void clickSignUpButton() {
         ElementAction.click(driver, signupBtn);
     }
 
-    public void fillAccountPassword(String password) {
+    // 5. إعادة إدخال الباسورد للتحقق النهائي والضغط على Continue
+    public void reEnterPasswordAndSubmit(String password) {
         ElementAction.fill(driver, passwordAccountTextBox, password);
-    }
-
-    public void clickContinueButton() {
         ElementAction.click(driver, continueBtn);
     }
 
-    // ====================== Flights & Hotels Actions (Youssef Hebish) ======================
+    //================================== Verification & Getters ==========================//
 
-    public void clickFlightsAndHotelsTab() {
-        ElementAction.click(driver, flightsAndHotelsBtn);
-        try { Thread.sleep(1000); } catch (InterruptedException e) {}
-        cleanUpDefaultValues();
-    }
-
-    public void clickRoundTripOption() {
-        ElementAction.click(driver, roundTripBtn);
-    }
-
-    public void fillRoundTripLeavingFrom(String city) {
-        org.openqa.selenium.WebElement input = new org.openqa.selenium.support.ui.WebDriverWait(driver, java.time.Duration.ofSeconds(5))
-                .until(org.openqa.selenium.support.ui.ExpectedConditions.elementToBeClickable(roundTripLeavingFromInput));
-        input.sendKeys(org.openqa.selenium.Keys.chord(org.openqa.selenium.Keys.CONTROL, "a"));
-        input.sendKeys(org.openqa.selenium.Keys.BACK_SPACE);
-        input.sendKeys(city);
+    // ميثود مباشرة وذكية للتحقق من ظهور حقل الاسم الأول لتجنب أي تعقيدات في الـ DOM
+    public boolean isFirstNameFieldDisplayed() {
         try {
-            org.openqa.selenium.WebElement option = new org.openqa.selenium.support.ui.WebDriverWait(driver, java.time.Duration.ofSeconds(5))
-                    .until(org.openqa.selenium.support.ui.ExpectedConditions.elementToBeClickable(firstAutoCompleteOption));
-            option.click();
+            // باستخدام findElements لتفادي تضييع الوقت والـ Exceptions إذا كان الحقل غير موجود بالكامل
+            return !driver.findElements(firstNameTextBox).isEmpty() && driver.findElement(firstNameTextBox).isDisplayed();
         } catch (Exception e) {
-            System.out.println("Autocomplete dropdown didn't appear for Leaving From.");
-        }
-    }
-    public void fillRoundTripGoingTo(String destination) {
-        org.openqa.selenium.WebElement goingToInput = driver.findElement(roundTripGoingToInput);
-        goingToInput.sendKeys(destination);
-        try { Thread.sleep(500); } catch (InterruptedException e) {}
-        goingToInput.sendKeys(org.openqa.selenium.Keys.ENTER);
-    }
-
-    public void clickRoundTripDate() {
-        ElementAction.click(driver, roundTripDateInput);
-    }
-
-    public void clickRoundTripSearch() {
-        ElementAction.click(driver, roundTripSearchBtn);
-    }
-
-    public void clickOneWayOption() {
-        ElementAction.click(driver, oneWayBtn);
-    }
-
-    public void fillOneWayLeavingFrom(String city) {
-        org.openqa.selenium.WebElement input = new org.openqa.selenium.support.ui.WebDriverWait(driver, java.time.Duration.ofSeconds(5))
-                .until(org.openqa.selenium.support.ui.ExpectedConditions.elementToBeClickable(oneWayLeavingFromInput));
-
-        input.sendKeys(org.openqa.selenium.Keys.chord(org.openqa.selenium.Keys.CONTROL, "a"));
-        input.sendKeys(org.openqa.selenium.Keys.BACK_SPACE);
-
-        ElementAction.fill(driver, oneWayLeavingFromInput, city);
-    }
-
-    public void fillOneWayGoingTo(String city) {
-        ElementAction.fill(driver, oneWayGoingToInput, city);
-    }
-
-    public void clickOneWayDate() {
-        ElementAction.click(driver, oneWayDateInput);
-    }
-
-    public void clickOneWaySearch() {
-        ElementAction.click(driver, oneWaySearchBtn);
-    }
-    public void clickCabinClassDropdown() {
-        new org.openqa.selenium.support.ui.WebDriverWait(driver, java.time.Duration.ofSeconds(10))
-                .ignoring(org.openqa.selenium.StaleElementReferenceException.class)
-                .until(org.openqa.selenium.support.ui.ExpectedConditions.elementToBeClickable(cabinClassDropdown))
-                .click();
-    }
-
-    public void selectPremiumEconomy() {
-        ElementAction.click(driver, premiumEconomyOption);
-    }
-
-    public void clickTravellersInput() {
-        ElementAction.click(driver, travellersInput);
-    }
-    public void clickApplyPassengers() {
-        new org.openqa.selenium.support.ui.WebDriverWait(driver, java.time.Duration.ofSeconds(5))
-                .until(org.openqa.selenium.support.ui.ExpectedConditions.elementToBeClickable(applyPassengerBtn)).click();
-    }
-    public void selectBusinessClass() {
-        ElementAction.click(driver, businessClassOption);
-    }
-
-    public void selectFirstClass() {
-        ElementAction.click(driver, firstClassOption);
-    }
-
-    public void addAdult() {
-        org.openqa.selenium.WebElement btn = new org.openqa.selenium.support.ui.WebDriverWait(driver, java.time.Duration.ofSeconds(5))
-                .until(org.openqa.selenium.support.ui.ExpectedConditions.elementToBeClickable(adultPlusBtn));
-        new org.openqa.selenium.interactions.Actions(driver).moveToElement(btn).click().perform();
-    }
-
-    public void removeAdult() {
-        try {
-            org.openqa.selenium.WebElement minusBtn = new org.openqa.selenium.support.ui.WebDriverWait(driver, java.time.Duration.ofSeconds(3))
-                    .until(org.openqa.selenium.support.ui.ExpectedConditions.presenceOfElementLocated(adultMinusBtn));
-            minusBtn.click();
-        } catch (Exception e) {
-            System.out.println("Adult minus button is disabled and cannot be clicked (Expected).");
+            return false;
         }
     }
 
-    public void addChild() {
-        org.openqa.selenium.WebElement btn = new org.openqa.selenium.support.ui.WebDriverWait(driver, java.time.Duration.ofSeconds(5))
-                .until(org.openqa.selenium.support.ui.ExpectedConditions.elementToBeClickable(childPlusBtn));
-        new org.openqa.selenium.interactions.Actions(driver).moveToElement(btn).click().perform();
-    }
-
-    public void addInfantOnLap() {
-        org.openqa.selenium.WebElement btn = new org.openqa.selenium.support.ui.WebDriverWait(driver, java.time.Duration.ofSeconds(5))
-                .until(org.openqa.selenium.support.ui.ExpectedConditions.elementToBeClickable(infantLapPlusBtn));
-        new org.openqa.selenium.interactions.Actions(driver).moveToElement(btn).click().perform();
-    }
-
-    public String getTravellersSummaryText() {
-        return new org.openqa.selenium.support.ui.WebDriverWait(driver, java.time.Duration.ofSeconds(5))
-                .until(org.openqa.selenium.support.ui.ExpectedConditions.presenceOfElementLocated(travellersSummaryText))
-                .getAttribute("value");
-    }
-
-    public void selectDateRangeAndClear() {
+    public String getEmailValidationMessage() {
         try {
-            new org.openqa.selenium.support.ui.WebDriverWait(driver, java.time.Duration.ofSeconds(5))
-                    .until(org.openqa.selenium.support.ui.ExpectedConditions.elementToBeClickable(startDate)).click();
-            Thread.sleep(500);
-            new org.openqa.selenium.support.ui.WebDriverWait(driver, java.time.Duration.ofSeconds(5))
-                    .until(org.openqa.selenium.support.ui.ExpectedConditions.elementToBeClickable(endDate)).click();
-            Thread.sleep(500);
-            new org.openqa.selenium.support.ui.WebDriverWait(driver, java.time.Duration.ofSeconds(5))
-                    .until(org.openqa.selenium.support.ui.ExpectedConditions.elementToBeClickable(clearDatesBtn)).click();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void selectDateRangeAndSet() {
-        try {
-            new org.openqa.selenium.support.ui.WebDriverWait(driver, java.time.Duration.ofSeconds(5))
-                    .until(org.openqa.selenium.support.ui.ExpectedConditions.elementToBeClickable(startDate)).click();
-            Thread.sleep(500);
-            new org.openqa.selenium.support.ui.WebDriverWait(driver, java.time.Duration.ofSeconds(5))
-                    .until(org.openqa.selenium.support.ui.ExpectedConditions.elementToBeClickable(endDate)).click();
-            Thread.sleep(500);
-            new org.openqa.selenium.support.ui.WebDriverWait(driver, java.time.Duration.ofSeconds(5))
-                    .until(org.openqa.selenium.support.ui.ExpectedConditions.elementToBeClickable(setDatesBtn)).click();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
-    public void cleanUpDefaultValues() {
-        try {
-            org.openqa.selenium.WebElement input = new org.openqa.selenium.support.ui.WebDriverWait(driver, java.time.Duration.ofSeconds(3))
-                    .until(org.openqa.selenium.support.ui.ExpectedConditions.presenceOfElementLocated(roundTripLeavingFromInput));
-            input.sendKeys(org.openqa.selenium.Keys.chord(org.openqa.selenium.Keys.CONTROL, "a"));
-            input.sendKeys(org.openqa.selenium.Keys.BACK_SPACE);
-        } catch (Exception e) {
-            System.out.println("Departure input was already empty.");
-        }
-        try {
-            org.openqa.selenium.WebElement checkbox = driver.findElement(By.xpath("//div[contains(@class, 'travel-packages')]//input[@type='checkbox']"));
-            if (checkbox.isSelected()) {
-                org.openqa.selenium.WebElement checkboxWrapper = checkbox.findElement(By.xpath("./.."));
-                new org.openqa.selenium.interactions.Actions(driver).moveToElement(checkboxWrapper).click().perform();
+            // محاولة جلب رسالة التحقق الخاصة بالمتصفح (HTML5 Validation Tooltip) المعروضة بالصورة image_907547.png
+            String validationMessage = wait.until(ExpectedConditions.visibilityOfElementLocated(emailTextBox)).getAttribute("validationMessage");
+            if (validationMessage != null && !validationMessage.isEmpty()) {
+                return validationMessage;
             }
         } catch (Exception e) {
-            System.out.println("Checkbox not found or not selected.");
+            // تجاهل الخطأ والانتقال للـ Fallback التالي
         }
-    }
-    public String getPassengerErrorMessage() {
+
         try {
-            org.openqa.selenium.WebElement errorElement = new org.openqa.selenium.support.ui.WebDriverWait(driver, java.time.Duration.ofSeconds(5))
-                    .until(org.openqa.selenium.support.ui.ExpectedConditions.visibilityOfElementLocated(passengerErrorMsg));
-            return errorElement.getText();
+            // محاولة جلب رسالة الخطأ العادية من الـ DOM كخيار بديل
+            return wait.until(ExpectedConditions.visibilityOfElementLocated(errorMessage)).getText();
         } catch (Exception e) {
             return "";
         }
     }
 
-    public String getCabinClassText() {
-        return new org.openqa.selenium.support.ui.WebDriverWait(driver, java.time.Duration.ofSeconds(10))
-                .until(org.openqa.selenium.support.ui.ExpectedConditions.visibilityOfElementLocated(cabinClassDropdown))
-                .getText();
+    public String getEmailErrorMessage() {
+        return wait.until(ExpectedConditions.visibilityOfElementLocated(errorMessageEmail)).getText();
     }
 
-    public String getRoundTripLeavingFromValue() {
-        return driver.findElement(roundTripLeavingFromInput).getAttribute("value");
+    public String getMissingFieldError() {
+        return wait.until(ExpectedConditions.visibilityOfElementLocated(errorMessageMissedField)).getText();
     }
 
-    public String getRoundTripGoingToValue() {
-        return driver.findElement(roundTripGoingToInput).getAttribute("value");
+    public String getPasswordError() {
+        return wait.until(ExpectedConditions.visibilityOfElementLocated(errorMessagePassword)).getText();
     }
 
-    public String getRoundTripDateText() {
-        return driver.findElement(roundTripDateInput).getText();
+    public String getPasswordMismatchError() {
+        return wait.until(ExpectedConditions.visibilityOfElementLocated(passwordErrorMatched)).getText();
     }
 
-    public String getOneWayDateText() {
-        return driver.findElement(oneWayDateInput).getText();
+    public String getGeneralErrorMessage() {
+        return wait.until(ExpectedConditions.visibilityOfElementLocated(errorMessage)).getText();
     }
 
-
-    public boolean isRoundTripActive() {
-        String cls = driver.findElement(segmentWrapper).getAttribute("class");
-        return cls != null && cls.contains("roundtrip");
-    }
-    public boolean isOneWayActive() {
-        String cls = driver.findElement(segmentWrapper).getAttribute("class");
-        return cls != null && cls.contains("oneway");
-    }
-
-    public boolean isAdultMinusDisabled() {
+    public boolean isErrorMessageDisplayed() {
         try {
-            org.openqa.selenium.WebElement minusBtn = driver.findElement(adultMinusBtn);
-            String classes = minusBtn.getAttribute("class");
-            System.out.println("DEBUG - Classes found on Adult Minus button: " + classes);
-            return classes != null && classes.contains("disabled");
+            return wait.until(ExpectedConditions.visibilityOfElementLocated(errorMessage)).isDisplayed();
         } catch (Exception e) {
-            System.out.println("DEBUG - Could not find the minus button: " + e.getMessage());
             return false;
         }
     }
 
-    public boolean isApplyPassengersEnabled() {
-        return driver.findElement(applyPassengerBtn).isEnabled();
-    }
-
-    public boolean isSetDatesButtonEnabled() {
-        return driver.findElement(setDatesBtn).isEnabled();
-    }
-
-    // Extends the same rdrDayDisabled convention already used inside startDate/endDate
-    private final By anyDisabledDate = By.xpath("//div[contains(@class,'date-picker')]//button[contains(@class,'rdrDayDisabled')]");
-    public boolean isPastDateDisabled() {
-        return !driver.findElements(anyDisabledDate).isEmpty();
-    }
-
-    public void selectChildAge() {
+    public boolean isVerificationCodeDisplayed() {
         try {
-            org.openqa.selenium.WebElement dropdown = new org.openqa.selenium.support.ui.WebDriverWait(driver, java.time.Duration.ofSeconds(5))
-                    .until(org.openqa.selenium.support.ui.ExpectedConditions.elementToBeClickable(childAgeDropdown));
-            new org.openqa.selenium.interactions.Actions(driver).moveToElement(dropdown).click().perform();
-            Thread.sleep(500);
-            org.openqa.selenium.WebElement ageOption = new org.openqa.selenium.support.ui.WebDriverWait(driver, java.time.Duration.ofSeconds(5))
-                    .until(org.openqa.selenium.support.ui.ExpectedConditions.elementToBeClickable(childAge3Years));
-            new org.openqa.selenium.interactions.Actions(driver).moveToElement(ageOption).click().perform();
-            Thread.sleep(500);
+            WebDriverWait longWait = new WebDriverWait(driver, Duration.ofSeconds(15));
+            return longWait.until(ExpectedConditions.visibilityOfElementLocated(verificationCodeTextBox)).isDisplayed();
         } catch (Exception e) {
-            System.out.println("Could not select child age: " + e.getMessage());
+            return false;
         }
     }
 
-    // ====================== HELPER METHODS FOR SIGNUP ======================
-
-    public void openSignupFlow() {
-        clickSignInButton();
-        clickChooseEmail();
-    }
-    public void completeSignupFlow(String email, String firstName,
-                                   String lastName, String password,
-                                   String confirmPassword) {
-
-        fillEmail(email);
-        clickContinueAfterEmail();
-        fillFirstName(firstName);
-        fillLastName(lastName);
-        fillPassword(password);
-        fillConfirmPassword(confirmPassword);
-        clickSignUpButton();
-        fillAccountPassword(password);
-        clickContinueButton();
-    }
-    //======================================== Assertions ===============================//
-
-    public void assertVerificationCodeBoxVisible() {
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
-        wait.until(ExpectedConditions.visibilityOfElementLocated(verificationCodeTextBox));
-        Assert.assertTrue(driver.findElement(verificationCodeTextBox).isDisplayed());
+    public boolean isVerificationCodeEnabled() {
+        return wait.until(ExpectedConditions.visibilityOfElementLocated(verificationCodeTextBox)).isEnabled();
     }
 
+    public boolean isRegistrationFormDisplayed() {
+        try {
+            // استخدام wait قصير (ثانيتين) لكي يفشل التيست بسرعة وبدون تعطيل وقت التشغيل عندما نتوقع عدم ظهور الحقل
+            WebDriverWait shortWait = new WebDriverWait(driver, Duration.ofSeconds(2));
+            return shortWait.until(ExpectedConditions.visibilityOfElementLocated(firstNameTextBox)).isDisplayed();
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public String getPasswordFieldType() {
+        return wait.until(ExpectedConditions.visibilityOfElementLocated(passwordTextBox)).getAttribute("type");
+    }
+
+    public String getConfirmPasswordFieldType() {
+        return wait.until(ExpectedConditions.visibilityOfElementLocated(confirmPasswordTextBox)).getAttribute("type");
+    }
 }
+
+
+
+
+
