@@ -13,8 +13,8 @@ public class BaseTest {
     @Parameters({"browser", "headless"})
     @BeforeMethod
     public void precondition(
-            @Optional("edge") String browserName,  // Changed from "firefox" to "edge"
-            @Optional("false") String headless) {  // Changed from "true" to "false" to see the browser
+            @Optional("firefox") String browserName,  // Changed from "firefox" to "edge"
+            @Optional("true") String headless) {  // Changed from "true" to "false" to see the browser
 
         driver = DriverFactory.setDriver(
                 browserName,

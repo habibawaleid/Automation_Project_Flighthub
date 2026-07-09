@@ -1,4 +1,4 @@
-package Tests;
+""package Tests;
 
 import Pages.HomePage;
 import com.github.javafaker.Faker;
@@ -272,4 +272,4 @@ public class SignupTest extends BaseTest {
         Assert.assertEquals(homePage.getEmailErrorMessage(), "Please provide your email address", "Generic error message element was not displayed!");
     }
 
-    }
+    }""
