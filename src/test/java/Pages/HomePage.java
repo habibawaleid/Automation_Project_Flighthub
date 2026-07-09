@@ -5,9 +5,9 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import Utils.ElementAction;
-import org.testng.Assert;
-
 import java.time.Duration;
+
+
 
 public class HomePage {
 
@@ -16,18 +16,21 @@ public class HomePage {
     //======================================== Driver =================================//
 
     private final WebDriver driver;
+    private final WebDriverWait wait;
+//h
 
     //======================================== Constructor ===========================//
 
-    public HomePage(WebDriver driver) {
+    public HomePage(WebDriver driver, WebDriverWait wait) {
         this.driver = driver;
+        this.wait = wait;
     }
 
 
     //========================================== Locators ============================//
 
 
-    // Locators for signup and login
+    //========================================== Locators ============================//
     private final By signupBottomBtn = By.xpath("//div[@class='sunshine-header-nav fh']//div[contains(text(),'Sign in')]");
     private final By emailChosenOption = By.xpath("//span[normalize-space()='Email']");
     private final By emailTextBox = By.id("login-modal-account-login-email");
@@ -40,7 +43,13 @@ public class HomePage {
     private final By passwordAccountTextBox = By.id("login-modal-account-login-password");
     private final By continueBtn = By.xpath("//div[@class='item button']//button[@class='login-modal-submit-btn is-main-button login-modal-button'][normalize-space()='Continue']");
     private final By verificationCodeTextBox = By.id("login-modal-account-login-totp");
-    private final By signInBtn = By.xpath("//button[@class='login-modal-submit-btn is-main-button login-modal-button'][normalize-space()='Sign in']");
+
+    // Locators for Validation and Error Messages
+    private final By errorMessageEmail = By.xpath("//div[@id='page-email']//div[@class='login-modal-feedback-message feedback-error'][normalize-space()='Please provide your email address']");
+    private final By errorMessageMissedField  = By.xpath("//div[@id='page-register']//div[@class='login-modal-feedback-message feedback-error'][normalize-space()='Please fill in all the fields']");
+    private final By errorMessagePassword = By.xpath("//div[@id='page-register']//div[@class='login-modal-feedback-message feedback-error'][normalize-space()='Your password must be at least 8 characters long']");
+    private final By passwordErrorMatched = By.xpath("//div[@id='page-register']//div[@class='login-modal-feedback-message feedback-error'][normalize-space()='Your passwords do not match']");
+    private final By errorMessage = By.xpath("//div[@class='login-modal-feedback-message feedback-error']");
 
     // Language & Currency Locators (in the order provided)
     private final By languageCurrencySelection = By.xpath("//div[@class='sunshine-header-nav fh']//span[contains(text(),'CAD')]");
@@ -77,6 +86,39 @@ public class HomePage {
     // ===== Logo =====
     private final By flightHubLogo = By.id("top-logo");
 
+    // ===== Flights and Hotels Search Form - Round Trip =====
+    private final By flightsAndHotelsBtn = By.xpath("//div[contains(@class, 'product-type-selector-item__travel-packages')]");
+    private final By roundTripBtn = By.xpath("//div[contains(@class, 'travel-packages')]//div[contains(@class, 'trip-type-roundtrip')]");
+    private final By roundTripLeavingFromInput = By.xpath("//div[contains(@class, 'travel-packages')]//div[contains(@class, 'departure')]//input");    private final By roundTripGoingToInput = By.xpath("//div[contains(@class, 'travel-packages')]//div[contains(@class, 'destination')]//input");
+    private final By roundTripDateInput = By.xpath("//div[@id='seg0_date']");
+    private final By roundTripSearchBtn = By.xpath("//div[@class='home-search-form-submit search-form-submit flights fh']");
+    private final By firstAutoCompleteOption = By.xpath("(//div[contains(@class, 'airport-autocomplete-list-item')])[1]");
+    private final By oneWayBtn = By.xpath("//div[contains(@class, 'travel-packages')]//div[contains(@class, 'trip-type-oneway')]");
+    private final By oneWayLeavingFromInput = By.xpath("//div[contains(@class, 'departure')]//input");
+    private final By oneWayGoingToInput = By.xpath("//div[@class='home-search-form-input destination ']");
+    private final By oneWayDateInput = By.xpath("//div[@id='seg0_date']");
+    private final By oneWaySearchBtn = By.xpath("//div[contains(@class,'home-search-form-submit search-form-submit flights fh')]");
+    private final By cabinClassDropdown = By.xpath("//div[contains(@class, 'travel-packages')]//div[contains(text(), 'Economy') or contains(text(), 'Business') or contains(text(), 'First')]");    private final By premiumEconomyOption = By.xpath("//div[contains(text(),'Premium Economy')]");
+    private final By travellersInput = By.xpath("//div[contains(@class,'passenger-room-input-wrapper')]");
+    private final By addAdultBtn = By.xpath("//div[contains(@class, 'passenger-type-adult')]//button[contains(@class, 'plus')]");
+    private final By childAgeDropdown = By.xpath("//div[contains(@class, 'guest-age-selector-container')]//div[contains(@class, 'age-selector-content')]");
+    private final By childAge3Years = By.xpath("//div[contains(@class, 'guest-age-selector-dropdown-list')]//div[contains(normalize-space(), '3 years old')]");
+    private final By businessClassOption = By.xpath("//div[text()='Business Class']");
+    private final By firstClassOption = By.xpath("//div[text()='First Class']");
+    private final By counterWrappers = By.xpath("//div[contains(@class,'passenger-room-list')]//div[contains(@class,'passenger-room-counter-wrapper')]");
+    private final By adultPlusBtn  = By.xpath("(//div[contains(@class,'passenger-room-counter-wrapper')])[1]//div[contains(concat(' ', normalize-space(@class), ' '), ' plus ')]");
+    private final By adultMinusBtn = By.xpath("(//div[contains(@class, 'passenger-room-counter')])[1]//div[contains(@class, 'plus-minus')][1]");
+    private final By childPlusBtn  = By.xpath("(//div[contains(@class,'passenger-room-counter-wrapper')])[2]//div[contains(concat(' ', normalize-space(@class), ' '), ' plus ')]");
+    private final By infantOnSeatPlusBtn = By.xpath("(//div[contains(@class,'passenger-room-counter-wrapper')])[3]//div[contains(concat(' ', normalize-space(@class), ' '), ' plus ')]");
+    private final By infantLapPlusBtn = By.xpath("(//div[contains(@class,'passenger-room-counter-wrapper')])[4]//div[contains(concat(' ', normalize-space(@class), ' '), ' plus ')]");
+    private final By travellersSummaryText = By.xpath("//div[contains(@class, 'travel-packages')]//div[contains(@class, 'passenger-room-input-wrapper')]//input");
+    private final By applyPassengerBtn = By.xpath("//div[contains(@class, 'travel-packages')]//button[contains(@class, 'apply-button')]");
+    private final By startDate = By.xpath("(//div[contains(@class, 'date-picker')]//button[contains(@class, 'rdrDay') and not(contains(@class, 'rdrDayDisabled')) and not(contains(@class, 'rdrDayPassive'))])[1]");
+    private final By endDate = By.xpath("(//div[contains(@class, 'date-picker')]//button[contains(@class, 'rdrDay') and not(contains(@class, 'rdrDayDisabled')) and not(contains(@class, 'rdrDayPassive'))])[14]");
+    private final By clearDatesBtn = By.xpath("//div[contains(@class, 'date-picker')]//div[contains(@class, 'clear-dates-btn')]");
+    private final By setDatesBtn = By.xpath("//div[contains(@class, 'date-picker')]//button[contains(@class, 'set-dates-btn')]");
+    private final By passengerErrorMsg = By.xpath("//div[contains(@class, 'passenger-room-selector-error')]");
+    private final By segmentWrapper = By.xpath("//div[contains(@class,'segment-wrapper')]");
 
     // ===== Cars Search Form =====
     private final By carsSelector = By.xpath("//div[contains(@class,'product-type-selector-item active')]");
@@ -87,81 +129,129 @@ public class HomePage {
     private final By carDropOffTimeInput = By.xpath("//body[1]/div[2]/div[2]/div[1]/section[1]/div[1]/div[2]/form[1]/div[2]/div[2]/div[3]/div[1]/div[1]/div[2]");
     private final By carSearchBtn = By.xpath("//div[contains(@class,'home-search-form-submit')]");
 
-    //========================================= Actions ===============================//
-
-    // Sign-up flow actions
-    public void clickSignInButton() {
+    // 1. الضغط على Sign in / Sign up
+    public void clickSignInSignUp() {
         ElementAction.click(driver, signupBottomBtn);
     }
 
-    public void clickChooseEmail() {
+    // 2. اختيار الإيميل كطريقة تسجيل
+    public void selectEmailOption() {
         ElementAction.click(driver, emailChosenOption);
     }
 
-    public void fillEmail(String email) {
-        ElementAction.fill(driver, emailTextBox, email);
-    }
-
-    public void clickContinueAfterEmail() {
+    // 3. إدخال الإيميل والضغط على متابعة
+    public void enterEmailAndContinue(String email) {
+        ElementAction.fill(driver, emailTextBox, email, true);
         ElementAction.click(driver, continueAfterEmail);
     }
 
-    public void fillFirstName(String firstName) {
+    // 4. ملء نموذج التسجيل والضغط على Sign up
+    public void fillRegistrationForm(String firstName, String lastName, String password, String confirmPassword) {
         ElementAction.fill(driver, firstNameTextBox, firstName);
-    }
-
-    public void fillLastName(String lastName) {
         ElementAction.fill(driver, lastNameTextBox, lastName);
-    }
-
-    public void fillPassword(String password) {
         ElementAction.fill(driver, passwordTextBox, password);
-    }
-
-    public void fillConfirmPassword(String confirmPassword) {
         ElementAction.fill(driver, confirmPasswordTextBox, confirmPassword);
-    }
-
-    public void clickSignUpButton() {
         ElementAction.click(driver, signupBtn);
     }
 
-    public void fillAccountPassword(String password) {
+    // 5. إعادة إدخال الباسورد للتحقق النهائي والضغط على Continue
+    public void reEnterPasswordAndSubmit(String password) {
         ElementAction.fill(driver, passwordAccountTextBox, password);
-    }
-
-    public void clickContinueButton() {
         ElementAction.click(driver, continueBtn);
     }
 
+    //================================== Verification & Getters ==========================//
 
-
-    // ====================== HELPER METHODS FOR SIGNUP ======================
-
-    public void openSignupFlow() {
-        clickSignInButton();
-        clickChooseEmail();
-    }
-    public void completeSignupFlow(String email, String firstName,
-                                   String lastName, String password,
-                                   String confirmPassword) {
-
-        fillEmail(email);
-        clickContinueAfterEmail();
-        fillFirstName(firstName);
-        fillLastName(lastName);
-        fillPassword(password);
-        fillConfirmPassword(confirmPassword);
-        clickSignUpButton();
-        fillAccountPassword(password);
-        clickContinueButton();
-    }
-    //======================================== Assertions ===============================//
-
-    public void assertVerificationCodeBoxVisible() {
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
-        wait.until(ExpectedConditions.visibilityOfElementLocated(verificationCodeTextBox));
-        Assert.assertTrue(driver.findElement(verificationCodeTextBox).isDisplayed());
+    // ميثود مباشرة وذكية للتحقق من ظهور حقل الاسم الأول لتجنب أي تعقيدات في الـ DOM
+    public boolean isFirstNameFieldDisplayed() {
+        try {
+            // باستخدام findElements لتفادي تضييع الوقت والـ Exceptions إذا كان الحقل غير موجود بالكامل
+            return !driver.findElements(firstNameTextBox).isEmpty() && driver.findElement(firstNameTextBox).isDisplayed();
+        } catch (Exception e) {
+            return false;
+        }
     }
 
+    public String getEmailValidationMessage() {
+        try {
+            // محاولة جلب رسالة التحقق الخاصة بالمتصفح (HTML5 Validation Tooltip) المعروضة بالصورة image_907547.png
+            String validationMessage = wait.until(ExpectedConditions.visibilityOfElementLocated(emailTextBox)).getAttribute("validationMessage");
+            if (validationMessage != null && !validationMessage.isEmpty()) {
+                return validationMessage;
+            }
+        } catch (Exception e) {
+            // تجاهل الخطأ والانتقال للـ Fallback التالي
+        }
+
+        try {
+            // محاولة جلب رسالة الخطأ العادية من الـ DOM كخيار بديل
+            return wait.until(ExpectedConditions.visibilityOfElementLocated(errorMessage)).getText();
+        } catch (Exception e) {
+            return "";
+        }
+    }
+
+    public String getEmailErrorMessage() {
+        return wait.until(ExpectedConditions.visibilityOfElementLocated(errorMessageEmail)).getText();
+    }
+
+    public String getMissingFieldError() {
+        return wait.until(ExpectedConditions.visibilityOfElementLocated(errorMessageMissedField)).getText();
+    }
+
+    public String getPasswordError() {
+        return wait.until(ExpectedConditions.visibilityOfElementLocated(errorMessagePassword)).getText();
+    }
+
+    public String getPasswordMismatchError() {
+        return wait.until(ExpectedConditions.visibilityOfElementLocated(passwordErrorMatched)).getText();
+    }
+
+    public String getGeneralErrorMessage() {
+        return wait.until(ExpectedConditions.visibilityOfElementLocated(errorMessage)).getText();
+    }
+
+    public boolean isErrorMessageDisplayed() {
+        try {
+            return wait.until(ExpectedConditions.visibilityOfElementLocated(errorMessage)).isDisplayed();
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public boolean isVerificationCodeDisplayed() {
+        try {
+            WebDriverWait longWait = new WebDriverWait(driver, Duration.ofSeconds(15));
+            return longWait.until(ExpectedConditions.visibilityOfElementLocated(verificationCodeTextBox)).isDisplayed();
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public boolean isVerificationCodeEnabled() {
+        return wait.until(ExpectedConditions.visibilityOfElementLocated(verificationCodeTextBox)).isEnabled();
+    }
+
+    public boolean isRegistrationFormDisplayed() {
+        try {
+            // استخدام wait قصير (ثانيتين) لكي يفشل التيست بسرعة وبدون تعطيل وقت التشغيل عندما نتوقع عدم ظهور الحقل
+            WebDriverWait shortWait = new WebDriverWait(driver, Duration.ofSeconds(2));
+            return shortWait.until(ExpectedConditions.visibilityOfElementLocated(firstNameTextBox)).isDisplayed();
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public String getPasswordFieldType() {
+        return wait.until(ExpectedConditions.visibilityOfElementLocated(passwordTextBox)).getAttribute("type");
+    }
+
+    public String getConfirmPasswordFieldType() {
+        return wait.until(ExpectedConditions.visibilityOfElementLocated(confirmPasswordTextBox)).getAttribute("type");
+    }
 }
+
+
+
+
+
