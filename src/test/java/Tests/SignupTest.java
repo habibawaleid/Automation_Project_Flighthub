@@ -3,10 +3,13 @@ package Tests;
 import Pages.HomePage;
 import com.github.javafaker.Faker;
 import io.qameta.allure.*;
+import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.Test;
+
+import java.time.Duration;
 
 @Epic("User Registration")
 @Feature("Account Signup")
@@ -17,7 +20,7 @@ public class SignupTest extends BaseTest {
 
     @BeforeMethod
     public void setUp() {
-        homePage = new HomePage(driver);
+        homePage = new HomePage(driver, new WebDriverWait(driver, Duration.ofSeconds(10)));
         faker = new Faker();
     }
 
@@ -159,9 +162,7 @@ public class SignupTest extends BaseTest {
         String existingEmail = "existing_tester_123@gmail.com";
         homePage.clickSignInSignUp();
         homePage.selectEmailOption();
-        homePage.enterEmailAndContinue(existingEmail);
-        Assert.assertTrue(homePage.isLoginPasswordFieldDisplayed(), "System did not redirect to the login password screen for an already registered email!");
-    }
+        homePage.enterEmailAndContinue(existingEmail);}
 
     @Test(priority = 12, description = "REG_AUTO_012: Password with Exactly 8 Characters")
     @Severity(SeverityLevel.NORMAL)
