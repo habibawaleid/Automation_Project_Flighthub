@@ -21,7 +21,7 @@ public class HomePage {
 
     //======================================== Constructor ===========================//
 
-    public HomePage(WebDriver driver) {
+    public HomePage(WebDriver driver, WebDriverWait webDriverWait) {
         this.driver = driver;
         this.wait = new WebDriverWait(driver, Duration.ofSeconds(10));
     }

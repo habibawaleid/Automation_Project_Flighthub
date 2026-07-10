@@ -3,9 +3,12 @@ package Tests;
 import Pages.HomePage;
 import com.github.javafaker.Faker;
 import io.qameta.allure.*;
+import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+
+import java.time.Duration;
 
 @Epic("User Authentication")
 @Feature("Account SignIn")
@@ -19,7 +22,7 @@ public class SignInTest extends BaseTest {
 
     @BeforeMethod
     public void setUp() {
-        homePage = new HomePage(driver);
+        homePage = new HomePage(driver, new WebDriverWait(driver, Duration.ofSeconds(10)));
         faker = new Faker();
     }
 

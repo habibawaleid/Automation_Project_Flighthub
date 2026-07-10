@@ -1,17 +1,13 @@
 package Tests;
 
 import Pages.FlightsandHotelPage;
-import Pages.HomePage;
 import com.github.javafaker.Faker;
 import io.qameta.allure.Description;
 import io.qameta.allure.Epic;
 import io.qameta.allure.Feature;
-import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
-
-import java.time.Duration;
 
 @Epic("Flights and Hotels")
 @Feature("Search Form Functionality")
