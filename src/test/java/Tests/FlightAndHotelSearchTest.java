@@ -1,27 +1,24 @@
 package Tests;
 
-import Pages.HomePage;
+import Pages.FlightsandHotelPage;
 import com.github.javafaker.Faker;
 import io.qameta.allure.Description;
 import io.qameta.allure.Epic;
 import io.qameta.allure.Feature;
-import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
-
-import java.time.Duration;
 
 @Epic("Flights and Hotels")
 @Feature("Search Form Functionality")
 public class FlightAndHotelSearchTest extends BaseTest {
 
-    private HomePage homePage;
+    private FlightsandHotelPage homePage;
     private Faker faker;
 
     @BeforeMethod
     public void setUp() {
-        homePage = new HomePage(driver,new WebDriverWait(driver, Duration.ofSeconds(10)));
+        homePage = new FlightsandHotelPage(driver);
         faker = new Faker();
     }
 
