@@ -1,1 +1,0 @@
-{"uuid":"98548aa3-0be4-495d-909c-cc57c24c9013","name":"Tests.SignupTest.setUp","children":["7314c37b-2d15-4da1-9119-034e3c2315f0"],"description":"","befores":[{"name":"setUp","status":"broken","stage":"finished","description":"","steps":[],"attachments":[],"parameters":[],"start":1783515132098,"stop":1783515132099}],"afters":[],"start":1783515132098,"stop":1783515132099}
