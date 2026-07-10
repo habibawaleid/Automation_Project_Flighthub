@@ -1,5 +1,6 @@
 package Tests;
 
+import Pages.FlightsandHotelPage;
 import Pages.HomePage;
 import com.github.javafaker.Faker;
 import io.qameta.allure.Description;
@@ -16,12 +17,12 @@ import java.time.Duration;
 @Feature("Search Form Functionality")
 public class FlightAndHotelSearchTest extends BaseTest {
 
-    private HomePage homePage;
+    private FlightsandHotelPage homePage;
     private Faker faker;
 
     @BeforeMethod
     public void setUp() {
-        homePage = new HomePage(driver,new WebDriverWait(driver, Duration.ofSeconds(10)));
+        homePage = new FlightsandHotelPage(driver);
         faker = new Faker();
     }
 
